@@ -97,8 +97,21 @@ class swarm:
         self.update_velocities()
         self.update_positions()
 
-    def 
+    def plot_birds(self):
+        """Plots one state of the swarm"""
 
+        # TODO: colour the best bird differently, add an x over the best known spot,
+        # add vector arrows for velocity
+
+        x_values = [self.birds[i].x_pos for i in range(self.size)]
+        y_values = [self.birds[i].y_pos for i in range(self.size)]
+
+        plt.scatter(x_values, y_values)
+
+        plt.ylim(-self.bounds, self.bounds)
+        plt.xlim(-self.bounds, self.bounds)
+
+        plt.show()
 
 
 
