@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 rng = np.random.default_rng()
 
@@ -46,6 +47,18 @@ class swarm:
         rand_y_velocities = rng.uniform(-bounds / 10, bounds / 10, size=size).tolist()
         
         self.birds = [bird(x_pos, y_pos, x_vel, y_vel) for x_pos, y_pos, x_vel, y_vel in zip(rand_x_positions, rand_y_positions, rand_x_velocities, rand_y_velocities)]
+
+        # initialize contour plot
+        feature_x = np.linspace(-self.bounds, self.bounds, 1000)
+        feature_y = np.linspace(-self.bounds, self.bounds, 1000)
+
+        [self.X, self.Y] = np.meshgrid(feature_x, feature_y)
+        self.Z = np.array([ [0]*1000 for i in range(1000)])
+        for i, x in enumerate(feature_x):
+            for j, y in enumerate(feature_y):
+                self.Z[i][j] = self.scorer(x, y)
+
+        self.score_birds()
 
     def score_birds(self):
         """Scores all birds and assigns the best overall position and score"""
@@ -97,23 +110,38 @@ class swarm:
         self.update_velocities()
         self.update_positions()
 
-    def plot_birds(self):
+    def plot_birds(self, filename=None):
         """Plots one state of the swarm"""
 
-        # TODO: colour the best bird differently, add an x over the best known spot,
-        # add vector arrows for velocity
+        # contour plot
+
+        plt.contourf(self.X, self.Y, self.Z, alpha=0.5)
+        
+        # plotting birds
 
         x_values = [self.birds[i].x_pos for i in range(self.size)]
         y_values = [self.birds[i].y_pos for i in range(self.size)]
+        x_vels = [self.birds[i].x_vel for i in range(self.size)]
+        y_vels = [self.birds[i].y_vel for i in range(self.size)]
+        colors = ['blue' for _ in range(self.size)]
 
-        plt.scatter(x_values, y_values)
+        plt.scatter(x_values, y_values, color='blue', alpha=0.8)
+
+
+        plt.quiver(x_values, y_values, x_vels, y_vels, color=colors, scale=self.bounds*1.6, width=0.007, alpha=0.7)
+        plt.scatter(self.x_group_best, self.y_group_best, color='red', marker='x')
 
         plt.ylim(-self.bounds, self.bounds)
         plt.xlim(-self.bounds, self.bounds)
+        plt.xlabel("x")
+        plt.ylabel("y", rotation=0)
+        plt.title("Particle Swarm Optimization")
+        plt.gca().set_aspect(1.0)
 
-        plt.show()
+        if filename:
+            plt.savefig(filename, dpi=200, bbox_inches='tight')
 
-
+        plt.close()
 
 
 
